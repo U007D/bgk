@@ -5,12 +5,17 @@ use crate::Rolls;
 
 const MAX_ROLLS_PER_FRAME: usize = 2;
 const MAX_PIN_SCORE_PER_FRAME: u8 = 10;
+const ROLLS_PER_STRIKE: usize = 1;
+const ROLLS_PER_SPARE: usize = 2;
 
 #[allow(clippy::needless_pass_by_value)]
 pub fn score(rolls: Rolls) -> u16 { score_by_frame(rolls.0.iter(), 1) }
 
-fn score_by_frame<'a, I>(mut iter: I, frame: usize) -> u16 where I: ExactSizeIterator<Item = &'a u8> + Clone {
-    if iter.len() == 0 || frame > 10 {
+fn score_by_frame<'a, I>(mut iter: I, frame: usize) -> u16
+where
+    I: ExactSizeIterator<Item = &'a u8> + Clone,
+{
+    if frame > 10 || iter.len() == 0 {
         return 0
     }
 
@@ -31,8 +36,8 @@ fn score_by_frame<'a, I>(mut iter: I, frame: usize) -> u16 where I: ExactSizeIte
 
     let bonus_iter = iter.clone();
     let bonus_score = bonus_iter.take(match (frame_score, rolls_this_frame) {
-                                    (MAX_PIN_SCORE_PER_FRAME, 1) => 2,
-                                    (MAX_PIN_SCORE_PER_FRAME, 2) => 1,
+                                    (MAX_PIN_SCORE_PER_FRAME, ROLLS_PER_STRIKE) => 2,
+                                    (MAX_PIN_SCORE_PER_FRAME, ROLLS_PER_SPARE) => 1,
                                     _ => 0,
                                 })
                                 .sum::<u8>();
